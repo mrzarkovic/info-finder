@@ -20000,7 +20000,7 @@ const AppActions = {
 
 module.exports = AppActions;
 
-},{"../constants/AppConstants":168,"../dispatcher/AppDispatcher":169}],165:[function(require,module,exports){
+},{"../constants/AppConstants":169,"../dispatcher/AppDispatcher":170}],165:[function(require,module,exports){
 const React = require('react');
 
 const AppActions = require('../actions/AppActions');
@@ -20011,7 +20011,8 @@ const SearchResults = require('./SearchResults');
 
 function getAppState () {
     return {
-        results: AppStore.getResults()
+        results: AppStore.getResults(),
+        searchText: AppStore.getSearchText()
     };
 }
 
@@ -20029,12 +20030,10 @@ const App = React.createClass({displayName: "App",
     },
 
     render: function () {
-        console.log(this.state.results);
-
         return (
             React.createElement("div", null, 
                 React.createElement(SearchForm, null), 
-                React.createElement(SearchResults, null)
+                 this.state.searchText && React.createElement(SearchResults, {searchText:  this.state.searchText, results:  this.state.results})
             )
         );
     },
@@ -20047,7 +20046,25 @@ const App = React.createClass({displayName: "App",
 
 module.exports = App;
 
-},{"../actions/AppActions":164,"../stores/AppStore":171,"./SearchForm":166,"./SearchResults":167,"react":163}],166:[function(require,module,exports){
+},{"../actions/AppActions":164,"../stores/AppStore":172,"./SearchForm":167,"./SearchResults":168,"react":163}],166:[function(require,module,exports){
+const React = require('react');
+
+const AppActions = require('../actions/AppActions');
+const AppStore = require('../stores/AppStore');
+
+const Result = React.createClass({displayName: "Result",
+    render: function () {
+        return (
+            React.createElement("div", null, 
+              React.createElement("p", {className: "content lead", dangerouslySetInnerHTML: {__html: this.props.result.Result}})
+            )
+        );
+    }
+});
+
+module.exports = Result;
+
+},{"../actions/AppActions":164,"../stores/AppStore":172,"react":163}],167:[function(require,module,exports){
 const React = require('react');
 
 const AppActions = require('../actions/AppActions');
@@ -20080,17 +20097,24 @@ const SearchForm = React.createClass({displayName: "SearchForm",
 
 module.exports = SearchForm;
 
-},{"../actions/AppActions":164,"../stores/AppStore":171,"react":163}],167:[function(require,module,exports){
+},{"../actions/AppActions":164,"../stores/AppStore":172,"react":163}],168:[function(require,module,exports){
 const React = require('react');
 
 const AppActions = require('../actions/AppActions');
 const AppStore = require('../stores/AppStore');
 
+const Result = require('./Result');
+
 const SearchResults = React.createClass({displayName: "SearchResults",
     render: function () {
         return (
             React.createElement("div", null, 
-                "SearchResults"
+              React.createElement("h2", {className: "page-header"}, "Results for ",  this.props.searchText), 
+                 this.props.results.map((result, index) => {
+                  return (
+                    React.createElement(Result, {result:  result, key:  index })
+                  );
+                }) 
             )
         );
     }
@@ -20098,13 +20122,13 @@ const SearchResults = React.createClass({displayName: "SearchResults",
 
 module.exports = SearchResults;
 
-},{"../actions/AppActions":164,"../stores/AppStore":171,"react":163}],168:[function(require,module,exports){
+},{"../actions/AppActions":164,"../stores/AppStore":172,"./Result":166,"react":163}],169:[function(require,module,exports){
 module.exports = {
   SEARCH_TEXT: 'SEARCH_TEXT',
   RECEIVE_RESULTS: 'RECEIVE_RESULTS'
 };
 
-},{}],169:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 const Dispatcher = require('flux').Dispatcher;
 const assign = require('object-assign');
 
@@ -20120,7 +20144,7 @@ const AppDispatcher = assign(new Dispatcher(), {
 
 module.exports = AppDispatcher;
 
-},{"flux":29,"object-assign":32}],170:[function(require,module,exports){
+},{"flux":29,"object-assign":32}],171:[function(require,module,exports){
 const React = require('react');
 const ReactDOM = require('react-dom');
 
@@ -20134,7 +20158,7 @@ ReactDOM.render(
     document.getElementById('app')
 );
 
-},{"./components/App":165,"./utils/appAPI":172,"react":163,"react-dom":34}],171:[function(require,module,exports){
+},{"./components/App":165,"./utils/appAPI":173,"react":163,"react-dom":34}],172:[function(require,module,exports){
 const EventEmitter = require('events').EventEmitter;
 const assign = require('object-assign');
 
@@ -20150,6 +20174,10 @@ var _searchText = '';
 const AppStore = assign({}, EventEmitter.prototype, {
     setSearchText: function (search) {
       _searchText = search.text;
+    },
+
+    getSearchText: function () {
+      return _searchText;
     },
     
     getResults: function () {
@@ -20203,7 +20231,7 @@ AppDispatcher.register(function (payload) {
 
 module.exports = AppStore;
 
-},{"../constants/AppConstants":168,"../dispatcher/AppDispatcher":169,"../utils/appAPI":172,"events":1,"object-assign":32}],172:[function(require,module,exports){
+},{"../constants/AppConstants":169,"../dispatcher/AppDispatcher":170,"../utils/appAPI":173,"events":1,"object-assign":32}],173:[function(require,module,exports){
 const AppActions = require('../actions/AppActions');
 
 module.exports = {
@@ -20225,4 +20253,4 @@ module.exports = {
   }
 };
 
-},{"../actions/AppActions":164}]},{},[170]);
+},{"../actions/AppActions":164}]},{},[171]);

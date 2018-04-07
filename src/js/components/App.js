@@ -8,7 +8,8 @@ const SearchResults = require('./SearchResults');
 
 function getAppState () {
     return {
-        results: AppStore.getResults()
+        results: AppStore.getResults(),
+        searchText: AppStore.getSearchText()
     };
 }
 
@@ -26,12 +27,10 @@ const App = React.createClass({
     },
 
     render: function () {
-        console.log(this.state.results);
-
         return (
             <div>
                 <SearchForm />
-                <SearchResults />
+                { this.state.searchText && <SearchResults searchText={ this.state.searchText } results={ this.state.results } /> }
             </div>
         );
     },

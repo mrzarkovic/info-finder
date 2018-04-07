@@ -14,6 +14,10 @@ const AppStore = assign({}, EventEmitter.prototype, {
     setSearchText: function (search) {
       _searchText = search.text;
     },
+
+    getSearchText: function () {
+      return _searchText;
+    },
     
     getResults: function () {
       return _results;
