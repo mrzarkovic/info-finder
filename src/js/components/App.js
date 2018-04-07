@@ -8,7 +8,7 @@ const SearchResults = require('./SearchResults');
 
 function getAppState () {
     return {
-        data: AppStore.getData()
+        results: AppStore.getResults()
     };
 }
 
@@ -26,7 +26,7 @@ const App = React.createClass({
     },
 
     render: function () {
-        console.log(this.state.data);
+        console.log(this.state.results);
 
         return (
             <div>

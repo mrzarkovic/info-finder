@@ -19988,7 +19988,14 @@ const AppActions = {
             actionType: AppConstants.SEARCH_TEXT,
             search: search
         });
-    }
+    },
+
+    receiveResults: function (results) {
+      AppDispatcher.handleViewAction({
+          actionType: AppConstants.RECEIVE_RESULTS,
+          results: results
+      });
+  },
 };
 
 module.exports = AppActions;
@@ -20004,7 +20011,7 @@ const SearchResults = require('./SearchResults');
 
 function getAppState () {
     return {
-        data: AppStore.getData()
+        results: AppStore.getResults()
     };
 }
 
@@ -20022,7 +20029,7 @@ const App = React.createClass({displayName: "App",
     },
 
     render: function () {
-        console.log(this.state.data);
+        console.log(this.state.results);
 
         return (
             React.createElement("div", null, 
@@ -20093,7 +20100,8 @@ module.exports = SearchResults;
 
 },{"../actions/AppActions":164,"../stores/AppStore":171,"react":163}],168:[function(require,module,exports){
 module.exports = {
-  SEARCH_TEXT: 'SEARCH_TEXT'
+  SEARCH_TEXT: 'SEARCH_TEXT',
+  RECEIVE_RESULTS: 'RECEIVE_RESULTS'
 };
 
 },{}],169:[function(require,module,exports){
@@ -20136,7 +20144,7 @@ const AppAPI = require('../utils/appAPI');
 
 const CHANGE_EVENT = 'change';
 
-var _items = [];
+var _results = [];
 var _searchText = '';
 
 const AppStore = assign({}, EventEmitter.prototype, {
@@ -20144,6 +20152,14 @@ const AppStore = assign({}, EventEmitter.prototype, {
       _searchText = search.text;
     },
     
+    getResults: function () {
+      return _results;
+    },
+
+    setResults: function (results) {
+      _results = results;
+    },
+
     emitChange: function () {
         this.emit(CHANGE_EVENT);
     },
@@ -20161,17 +20177,25 @@ AppDispatcher.register(function (payload) {
     let action = payload.action;
 
     switch(action.actionType) {
-        case AppConstants.SEARCH_TEXT:
-            console.log('Searching for text...');
+      case AppConstants.SEARCH_TEXT:
+        console.log('Searching for text...');
 
-            // Store State
-            AppStore.setSearchText(action.search);
+        // Store State
+        AppStore.setSearchText(action.search);
 
-            // API Search
-            AppAPI.searchText(action.search);
+        // API Search
+        AppAPI.searchText(action.search);
 
-            AppStore.emitChange();
-            break;
+        AppStore.emitChange();
+        break;
+      case AppConstants.RECEIVE_RESULTS:
+        console.log('Receiving results...');
+
+        // Store Update State
+        AppStore.setResults(action.results);
+
+        AppStore.emitChange();
+        break;
     }
 
     return true;
@@ -20184,19 +20208,21 @@ const AppActions = require('../actions/AppActions');
 
 module.exports = {
   searchText: function (search) {
-      $.ajax({
-        url: '',
-        type: 'GET',
-        dataType: 'json',
-        cache: false,
-        success: function (data) {
-            AppActions.receiveData(data);
-        }.bind(this),
-        error: function (xhr, status, error) {
-            console.log(error);
-        }.bind(this)
-      });
-    }
+    let url = 'https://api.duckduckgo.com/?q=' + search.text + '&format=json&pretty=1';
+
+    $.ajax({
+      url: url,
+      type: 'GET',
+      dataType: 'jsonp', // for cross-domain request
+      cache: false,
+      success: function (data) {
+          AppActions.receiveResults(data.RelatedTopics);
+      }.bind(this),
+      error: function (xhr, status, error) {
+          console.log(error);
+      }.bind(this)
+    });
+  }
 };
 
 },{"../actions/AppActions":164}]},{},[170]);
