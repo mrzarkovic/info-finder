@@ -1,3 +1,3 @@
 module.exports = {
-  RECEIVE_DATA: 'RECEIVE_DATA'
+  SEARCH_TEXT: 'SEARCH_TEXT'
 };

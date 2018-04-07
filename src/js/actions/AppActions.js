@@ -2,10 +2,10 @@ const AppDispatcher = require('../dispatcher/AppDispatcher');
 const AppConstants = require('../constants/AppConstants');
 
 const AppActions = {
-    receiveData: function (data) {
+    searchText: function (search) {
         AppDispatcher.handleViewAction({
-            actionType: AppConstants.RECEIVE_DATA,
-            data: data
+            actionType: AppConstants.SEARCH_TEXT,
+            search: search
         });
     }
 };

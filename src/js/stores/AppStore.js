@@ -7,24 +7,12 @@ const AppAPI = require('../utils/appAPI');
 
 const CHANGE_EVENT = 'change';
 
-var _data = [];
+var _items = [];
+var _searchText = '';
 
 const AppStore = assign({}, EventEmitter.prototype, {
-    addData: function (data) {
-      _data.push(data);
-    },
-
-    getData: function () {
-        return _data;
-    },
-
-    setData: function (data) {
-      _data = data;
-    },
-
-    removeData: function (dataId) {
-        let index = _data.findIndex( n => n.id == dataId);
-        _data.splice(index, 1);
+    setSearchText: function (search) {
+      _searchText = search.text;
     },
     
     emitChange: function () {
@@ -44,11 +32,14 @@ AppDispatcher.register(function (payload) {
     let action = payload.action;
 
     switch(action.actionType) {
-        case AppConstants.RECEIVE_DATA:
-            console.log('Receiving data...');
+        case AppConstants.SEARCH_TEXT:
+            console.log('Searching for text...');
 
-            // Store Save
-            AppStore.setData(action.data);
+            // Store State
+            AppStore.setSearchText(action.search);
+
+            // API Search
+            AppAPI.searchText(action.search);
 
             AppStore.emitChange();
             break;

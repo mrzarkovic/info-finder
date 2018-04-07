@@ -19983,10 +19983,10 @@ const AppDispatcher = require('../dispatcher/AppDispatcher');
 const AppConstants = require('../constants/AppConstants');
 
 const AppActions = {
-    receiveData: function (data) {
+    searchText: function (search) {
         AppDispatcher.handleViewAction({
-            actionType: AppConstants.RECEIVE_DATA,
-            data: data
+            actionType: AppConstants.SEARCH_TEXT,
+            search: search
         });
     }
 };
@@ -20050,9 +20050,24 @@ const SearchForm = React.createClass({displayName: "SearchForm",
     render: function () {
         return (
             React.createElement("div", null, 
-                "SearchForm"
+                React.createElement("form", {className: "well", onSubmit:  this.searchText}, 
+                  React.createElement("div", {className: "form-group"}, 
+                    React.createElement("label", null, "Search for Something..."), 
+                    React.createElement("input", {type: "text", className: "form-control", ref: "text"})
+                  )
+                )
             )
         );
+    },
+
+    searchText: function (e) {
+      e.preventDefault();
+
+      let search = {
+        text: this.refs.text.value.trim()
+      };
+
+      AppActions.searchText(search);
     }
 });
 
@@ -20078,7 +20093,7 @@ module.exports = SearchResults;
 
 },{"../actions/AppActions":164,"../stores/AppStore":171,"react":163}],168:[function(require,module,exports){
 module.exports = {
-  RECEIVE_DATA: 'RECEIVE_DATA'
+  SEARCH_TEXT: 'SEARCH_TEXT'
 };
 
 },{}],169:[function(require,module,exports){
@@ -20121,24 +20136,12 @@ const AppAPI = require('../utils/appAPI');
 
 const CHANGE_EVENT = 'change';
 
-var _data = [];
+var _items = [];
+var _searchText = '';
 
 const AppStore = assign({}, EventEmitter.prototype, {
-    addData: function (data) {
-      _data.push(data);
-    },
-
-    getData: function () {
-        return _data;
-    },
-
-    setData: function (data) {
-      _data = data;
-    },
-
-    removeData: function (dataId) {
-        let index = _data.findIndex( n => n.id == dataId);
-        _data.splice(index, 1);
+    setSearchText: function (search) {
+      _searchText = search.text;
     },
     
     emitChange: function () {
@@ -20158,11 +20161,14 @@ AppDispatcher.register(function (payload) {
     let action = payload.action;
 
     switch(action.actionType) {
-        case AppConstants.RECEIVE_DATA:
-            console.log('Receiving data...');
+        case AppConstants.SEARCH_TEXT:
+            console.log('Searching for text...');
 
-            // Store Save
-            AppStore.setData(action.data);
+            // Store State
+            AppStore.setSearchText(action.search);
+
+            // API Search
+            AppAPI.searchText(action.search);
 
             AppStore.emitChange();
             break;
@@ -20177,18 +20183,18 @@ module.exports = AppStore;
 const AppActions = require('../actions/AppActions');
 
 module.exports = {
-    getData: function () {
+  searchText: function (search) {
       $.ajax({
-          url: '',
-          type: 'GET',
-          dataType: 'json',
-          cache: false,
-          success: function (data) {
-              AppActions.receiveData(data);
-          }.bind(this),
-          error: function (xhr, status, error) {
-              console.log(error);
-          }.bind(this)
+        url: '',
+        type: 'GET',
+        dataType: 'json',
+        cache: false,
+        success: function (data) {
+            AppActions.receiveData(data);
+        }.bind(this),
+        error: function (xhr, status, error) {
+            console.log(error);
+        }.bind(this)
       });
     }
 };
